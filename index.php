@@ -9,10 +9,12 @@
     <div class="btnContainer"><button type="submit" class="btn">Check Now</button></div>
   </form>
   <div id="result" style="display:none">
-    <h2>Result</h2>
+    <h2>Results</h2>
     <p>
       Below you can see the results of the performed tests.
     </p>
+    <h3>Score</h3>
+    <p>The site has achieved a score of <span id="score"></span>/100</p>
     <h3>Failed Tests</h3>
     <ul id="failed"></ul>
     <h3>Passed Tests</h3>
@@ -22,6 +24,7 @@
 <script>
   const formElement = document.getElementById('form');
   const resultElement = document.getElementById('result');
+  const scoreElement = document.getElementById('score');
   const failedElement = document.getElementById('failed');
   const passedElement = document.getElementById('passed');
   formElement.addEventListener('submit', e => {
@@ -34,6 +37,7 @@
     .then(response => response.json())
     .then(result => {
       resultElement.style.display = 'block';
+      scoreElement.innerHTML = parseInt(result.passed.length / (result.passed.length + result.failed.length) * 100, 10);
       failedElement.innerHTML = '';
       passedElement.innerHTML = '';
       for (let i = 0; i < result.failed.length; i++) {
