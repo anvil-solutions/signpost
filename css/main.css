@@ -105,12 +105,9 @@ button {
 input, button, a, a * {
   transition-duration: .25s;
 }
-.welcome {
-  max-width: 480px;
-}
 .welcome label {
   display: grid;
-  grid-template-columns: 35% auto;
+  grid-template-columns: 10% auto;
   align-items: center;
   gap: 16px;
   margin: 0 0 16px;
