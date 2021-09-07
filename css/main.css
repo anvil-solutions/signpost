@@ -58,7 +58,7 @@ h3 {
   font-weight: 400;
   color: var(--text-color);
 }
-p, label {
+p, ul, label {
   color: var(--text-color-secondary);
 }
 img {
@@ -67,6 +67,10 @@ img {
 }
 p {
   margin: 1em 0;
+}
+ul {
+  margin-left: 24px;
+  padding: 0;
 }
 a {
   color: var(--accent-color);
