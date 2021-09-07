@@ -1,35 +1,48 @@
 <?php
   //error_reporting(E_ALL);
   header('Content-Type: application/json; charset=utf-8');
-  if (!isset($_POST['url']) || (substr($_POST['url'], 0, 7) !== 'http://' && substr($_POST['url'], 0, 8) !== 'https://')) {
-    echo '[]';
+  if (!isset($_POST['url'])) {
+    echo '{}';
     exit;
   }
+  if (substr($_POST['url'], 0, 7) !== 'http://' && substr($_POST['url'], 0, 8) !== 'https://') $_POST['url'] = 'http://'.$_POST['url'];
 
   $curl = curl_init();
   curl_setopt($curl, CURLOPT_URL, $_POST['url']);
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($curl, CURLOPT_HEADER, true);
   $data = curl_exec($curl);
   $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
   curl_close($curl);
   list($headers, $file) = explode("\r\n\r\n", $data, 2);
+  while (substr($file, 0, 4) === 'HTTP') list($headers, $file) = explode("\r\n\r\n", $file, 2);
   while (strpos($file, '  ') !== false) $file = str_replace('  ', ' ', $file);
 
   $doc = new DOMDocument();
   $doc->loadHTML($file);
 
-  $result = ['url' => $_POST['url'], 'passed' => 0, 'failed' => 0];
+  $result = ['url' => $_POST['url'], 'passed' => [], 'failed' =>[]];
+
+  function addToResult($bool, $string) {
+    global $result;
+    if ($bool) array_push($result['passed'], $string);
+    else array_push($result['failed'], $string);
+  }
 
   //Enable text compression
 
   //Use HTTP/2
-  if (strpos($headers, 'HTTP/2') !== false) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    strpos($headers, 'HTTP/2') !== false,
+    'Use HTTP/2'
+  );
 
   //Avoids document.write()
-  if (strpos($file, 'document.write(') === false) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    strpos($file, 'document.write(') === false,
+    'Avoids document.write()'
+  );
 
   //<html> element does have a [lang] attribute
   $passed = false;
@@ -38,7 +51,10 @@
     if ($node->attributes->getNamedItem('lang') !== null) $passed = true;
     break;
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    '<html> element does have a [lang] attribute'
+  );
 
   //[aria-hidden="true"] is not present on the document <body>
   $passed = true;
@@ -47,13 +63,18 @@
     if ($node->attributes->getNamedItem('aria-hidden') !== null && $node->attributes->getNamedItem('aria-hidden')->value === 'true') $passed = false;
     break;
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    '[aria-hidden="true"] is not present on the document <body>'
+  );
 
   //Document has a <title> element
-  if ($doc->getElementsByTagName('title')->length > 0) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    $doc->getElementsByTagName('title')->length > 0,
+    'Document has a <title> element'
+  );
 
-  //[user-scalable="no"] is not used in the <meta name="viewport"> element.
+  //[user-scalable="no"] is not used in the <meta name="viewport"> element
   $passed = false;
   $nodeList = $doc->getElementsByTagName('meta');
   foreach($nodeList as $node) {
@@ -64,7 +85,10 @@
       }
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    '[user-scalable="no"] is not used in the <meta name="viewport"> element'
+  );
 
   //<frame> or <iframe> elements have a title
   $passed = true;
@@ -76,7 +100,10 @@
   foreach($nodeList as $node) {
     if ($node->attributes->getNamedItem('title') === null) $passed = false;
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    '<frame> or <iframe> elements have a title'
+  );
 
   //Image elements have [alt] attributes
   $passed = true;
@@ -84,7 +111,10 @@
   foreach($nodeList as $node) {
     if ($node->attributes->getNamedItem('alt') === null) $passed = false;
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'Image elements have [alt] attributes'
+  );
 
   //<input type="image"> elements have [alt] text
   $passed = true;
@@ -95,7 +125,10 @@
       if ($attributes->getNamedItem('alt') === null) $passed = false;
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    '<input type="image"> elements have [alt] text'
+  );
 
   //Form elements have associated labels
 
@@ -112,7 +145,10 @@
       if ($attributes->getNamedItem('http-equiv')->value === 'refresh') $passed = false;
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'The document does not use <meta http-equiv="refresh">'
+  );
 
   //<object> elements have [alt] text
   $passed = true;
@@ -120,13 +156,18 @@
   foreach($nodeList as $node) {
     if ($node->attributes->getNamedItem('alt') === null) $passed = false;
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    '<object> elements have [alt] text'
+  );
 
   //<video> elements contain a <track> element with [kind="captions"]
 
   //Does use HTTPS
-  if (strpos($_POST['url'], 'https://') !== false) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    strpos($_POST['url'], 'https://') !== false,
+    'Does use HTTPS'
+  );
 
   //Links to cross-origin destinations are safe
   $passed = true;
@@ -141,11 +182,16 @@
       }
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'Links to cross-origin destinations are safe'
+  );
 
   //Page has the HTML doctype
-  if (strpos($file, '<!DOCTYPE html>') !== false) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    strpos($file, '<!DOCTYPE html>') !== false,
+    'Page has the HTML doctype'
+  );
 
   //Properly defines charset
   $passed = false;
@@ -160,7 +206,10 @@
       }
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'Properly defines charset'
+  );
 
   //Avoids Application Cache
   $passed = false;
@@ -173,9 +222,12 @@
     }
     break;
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'Avoids Application Cache'
+  );
 
-  //Document does have a meta description
+  //Document has a meta description
   $passed = false;
   $nodeList = $doc->getElementsByTagName('meta');
   foreach($nodeList as $node) {
@@ -184,7 +236,10 @@
       break;
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'Document has a meta description'
+  );
 
   //Has a <meta name="viewport"> tag with width or initial-scale
   $passed = false;
@@ -197,15 +252,22 @@
       }
     }
   }
-  if ($passed) $result['passed']++; else $result['failed']++;
+  addToResult(
+    $passed,
+    'Has a <meta name="viewport"> tag with width or initial-scale'
+  );
 
   //Page has successful HTTP status code
-  if ($http_status > 199 && $http_status < 300) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    $http_status > 199 && $http_status < 300,
+    'Page has successful HTTP status code'
+  );
 
   //Document avoids plugins
-  if (strpos($file, '.swf') === false && strpos($file, '.flv') === false && strpos($file, '.class') === false && strpos($file, '.xap') === false) $result['passed']++;
-  else $result['failed']++;
+  addToResult(
+    strpos($file, '.swf') === false && strpos($file, '.flv') === false && strpos($file, '.class') === false && strpos($file, '.xap') === false,
+    'Document avoids plugins'
+  );
 
   echo json_encode($result);
 ?>
