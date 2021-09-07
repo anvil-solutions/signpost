@@ -4,7 +4,7 @@
   <p>
     Signpost is a web app for checking basic website performance. Enter an web page url below to start testing.
   </p>
-  <form method="POST">
+  <form method="POST" action="./check">
     <label><div>URL: </div><input name="url" type="text" required></label>
     <div class="btnContainer"><button type="submit" class="btn">Check Now</button></div>
   </form>
