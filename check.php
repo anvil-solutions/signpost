@@ -53,7 +53,18 @@
   if ($doc->getElementsByTagName('title')->length > 0) $result['passed']++;
   else $result['failed']++;
 
-  //[user-scalable="no"] is not used in the <meta name="viewport"> element and the [maximum-scale] attribute is not less than 5.
+  //[user-scalable="no"] is not used in the <meta name="viewport"> element.
+  $passed = false;
+  $nodeList = $doc->getElementsByTagName('meta');
+  foreach($nodeList as $node) {
+    if ($node->attributes->getNamedItem('name') !== null && $node->attributes->getNamedItem('name')->value === 'viewport') {
+      if ($node->attributes->getNamedItem('content') !== null && strpos($node->attributes->getNamedItem('content')->value, 'user-scalable="no"') === false) {
+        $passed = true;
+        break;
+      }
+    }
+  }
+  if ($passed) $result['passed']++; else $result['failed']++;
 
   //<frame> or <iframe> elements have a title
   $passed = true;
