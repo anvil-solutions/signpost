@@ -41,6 +41,13 @@
   if ($passed) $result['passed']++; else $result['failed']++;
 
   //[aria-hidden="true"] is not present on the document <body>
+  $passed = true;
+  $nodeList = $doc->getElementsByTagName('body');
+  foreach($nodeList as $node) {
+    if ($node->attributes->getNamedItem('aria-hidden') !== null && $node->attributes->getNamedItem('aria-hidden')->value === 'true') $passed = false;
+    break;
+  }
+  if ($passed) $result['passed']++; else $result['failed']++;
 
   //Document has a <title> element
   if ($doc->getElementsByTagName('title')->length > 0) $result['passed']++;
@@ -184,7 +191,7 @@
   //Page has successful HTTP status code
   if ($http_status > 199 && $http_status < 300) $result['passed']++;
   else $result['failed']++;
-  
+
   //Document avoids plugins
   if (strpos($file, '.swf') === false && strpos($file, '.flv') === false && strpos($file, '.class') === false && strpos($file, '.xap') === false) $result['passed']++;
   else $result['failed']++;
