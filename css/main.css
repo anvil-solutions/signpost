@@ -9,6 +9,12 @@
 * {
   -webkit-tap-highlight-color: transparent;
 }
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(+10px);
+  }
+}
 html {
   -webkit-text-size-adjust: none;
   -moz-text-size-adjust: none;
@@ -44,7 +50,7 @@ h1 {
   text-transform: uppercase;
 }
 main {
-  max-width: 1080px;
+  max-width: 720px;
   padding: 70px 16px 16px;
   margin: 0 auto;
 }
@@ -130,4 +136,19 @@ input, button, a, a * {
 }
 .welcome .btn {
   margin: 0 0 0 auto;
+}
+#failed, #passed {
+  list-style: none;
+  margin-left: 0;
+}
+#failed > li {
+  background: url(../images/failed.svg) left center no-repeat;
+  padding: 8px 0 8px 32px;
+}
+#passed > li {
+  background: url(../images/passed.svg) left center no-repeat;
+  padding: 8px 0 8px 32px;
+}
+#result, #error {
+  animation: fadeIn 1s;
 }
