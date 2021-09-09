@@ -129,7 +129,6 @@ form > .btn {
 form > input[type=text] {
   display: inline-block;
   flex: 1;
-  border: 0;
   padding: 8px 16px;
   background: #fff;
   color: var(--text-color);
