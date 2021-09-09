@@ -18,3 +18,8 @@ RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
  AddOutputFilterByType DEFLATE application/x-javascript
  AddOutputFilterByType DEFLATE application/x-shockwave-flash
 </IfModule>
+
+#Caching
+<ifmodule mod_headers.c>
+ Header set Cache-Control "max-age=600"
+</ifmodule>
