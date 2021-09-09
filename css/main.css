@@ -71,6 +71,9 @@ img {
   height: auto;
 }
 ul {
+  list-style: none;
+  margin-left: 0;
+  margin-bottom: 0;
   padding: 0;
 }
 a {
@@ -107,6 +110,20 @@ button {
 input, button, a, a * {
   transition-duration: .25s;
 }
+.card {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: .1px solid var(--hover-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  animation: fadeIn 1s;
+}
+.card > :first-child {
+  margin-top: 0;
+}
+.card > :last-child {
+  margin-bottom: 0;
+}
 form {
   display: flex;
 }
@@ -128,20 +145,6 @@ form > input[type=text] {
   box-shadow: var(--card-shadow);
   outline: 0;
 }
-#result, #error {
-  margin-top: 48px;
-  padding: 16px;
-  border: .1px solid var(--hover-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  animation: fadeIn 1s;
-}
-#result > :first-child, #error > :first-child {
-  margin-top: 0;
-}
-#result > :last-child, #error > :last-child {
-  margin-bottom: 0;
-}
 details > summary > h3 > .indicator:before {
   content: '⮟';
   color: var(--text-color-secondary);
@@ -154,12 +157,9 @@ summary {
   list-style-type: none;
   cursor: pointer;
 }
-#failed, #passed {
-  list-style: none;
-  margin-left: 0;
-}
 li {
   padding: 8px 0 8px 32px;
+  background: url(../images/link.svg) left center no-repeat;
 }
 #failed > li {
   background: url(../images/failed.svg) left center no-repeat;
