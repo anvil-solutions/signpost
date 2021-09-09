@@ -66,10 +66,6 @@ h3 {
 p, ul, label {
   color: var(--text-color-secondary);
 }
-img {
-  max-width: 100%;
-  height: auto;
-}
 ul {
   list-style: none;
   margin-left: 0;
