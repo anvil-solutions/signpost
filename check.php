@@ -12,10 +12,9 @@
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($curl, CURLOPT_HEADER, true);
-  $data = curl_exec($curl);
+  $file = curl_exec($curl);
   $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
   curl_close($curl);
-  list($headers, $file) = explode("\r\n\r\n", $data, 2);
   while (substr($file, 0, 4) === 'HTTP') list($headers, $file) = explode("\r\n\r\n", $file, 2);
   while (strpos($file, '  ') !== false) $file = str_replace('  ', ' ', $file);
 
@@ -100,11 +99,17 @@
   $passed = true;
   $nodeList = $doc->getElementsByTagName('frame');
   foreach($nodeList as $node) {
-    if ($node->attributes->getNamedItem('title') === null) $passed = false;
+    if ($node->attributes->getNamedItem('title') === null) {
+      $passed = false;
+      break;
+    }
   }
   $nodeList = $doc->getElementsByTagName('iframe');
   foreach($nodeList as $node) {
-    if ($node->attributes->getNamedItem('title') === null) $passed = false;
+    if ($node->attributes->getNamedItem('title') === null) {
+      $passed = false;
+      break;
+    }
   }
   addToResult(
     $passed,
@@ -116,7 +121,10 @@
   $passed = true;
   $nodeList = $doc->getElementsByTagName('img');
   foreach($nodeList as $node) {
-    if ($node->attributes->getNamedItem('alt') === null) $passed = false;
+    if ($node->attributes->getNamedItem('alt') === null) {
+      $passed = false;
+      break;
+    }
   }
   addToResult(
     $passed,
@@ -130,7 +138,10 @@
   foreach($nodeList as $node) {
     $attributes = $node->attributes;
     if ($attributes->getNamedItem('input') !== null && $attributes->getNamedItem('input')->value === 'image') {
-      if ($attributes->getNamedItem('alt') === null) $passed = false;
+      if ($attributes->getNamedItem('alt') === null) {
+        $passed = false;
+        break;
+      }
     }
   }
   addToResult(
@@ -141,9 +152,46 @@
 
   //Form elements have associated labels
 
-  //Lists contain only <li> elements and script supporting elements (<script> and <template>).
+  //Lists contain only <li> elements and script supporting elements (<script> and <template>)
+  $passed = true;
+  $nodeList = $doc->getElementsByTagName('ul');
+  foreach($nodeList as $node) {
+    foreach($node->childNodes as $child) {
+      if ($child->nodeName !== 'li' && $child->nodeName !== 'script' && $child->nodeName !== 'template') {
+        $passed = false;
+        break;
+      }
+    }
+  }
+  $nodeList = $doc->getElementsByTagName('ol');
+  foreach($nodeList as $node) {
+    foreach($node->childNodes as $child) {
+      if ($child->nodeName !== 'li' && $child->nodeName !== 'script' && $child->nodeName !== 'template') {
+        $passed = false;
+        break;
+      }
+    }
+  }
+  addToResult(
+    $passed,
+    'Lists contain only <li> elements and script supporting elements (<script> and <template>)',
+    'Lists do not contain only <li> elements and script supporting elements (<script> and <template>)'
+  );
 
   //List items (<li>) are contained within <ul> or <ol> parent elements
+  $passed = true;
+  $nodeList = $doc->getElementsByTagName('li');
+  foreach($nodeList as $node) {
+    if ($node->parentNode->nodeName !== 'ul' && $node->parentNode->nodeName !== 'ol') {
+      $passed = false;
+      break;
+    }
+  }
+  addToResult(
+    $passed,
+    'List items (<li>) are contained within <ul> or <ol> parent elements',
+    'List items (<li>) are not contained within <ul> or <ol> parent elements'
+  );
 
   //The document does not use <meta http-equiv="refresh">
   $passed = true;
@@ -151,7 +199,10 @@
   foreach($nodeList as $node) {
     $attributes = $node->attributes;
     if ($attributes->getNamedItem('http-equiv') !== null) {
-      if ($attributes->getNamedItem('http-equiv')->value === 'refresh') $passed = false;
+      if ($attributes->getNamedItem('http-equiv')->value === 'refresh') {
+        $passed = false;
+        break;
+      }
     }
   }
   addToResult(
@@ -164,7 +215,10 @@
   $passed = true;
   $nodeList = $doc->getElementsByTagName('object');
   foreach($nodeList as $node) {
-    if ($node->attributes->getNamedItem('alt') === null) $passed = false;
+    if ($node->attributes->getNamedItem('alt') === null) {
+      $passed = false;
+      break;
+    }
   }
   addToResult(
     $passed,
@@ -173,6 +227,25 @@
   );
 
   //<video> elements contain a <track> element with [kind="captions"]
+  $passed = true;
+  $nodeList = $doc->getElementsByTagName('video');
+  if ($nodeList->length > 0) {
+    $passed = false;
+    foreach($nodeList as $node) {
+      foreach($node->childNodes as $child) {
+        $attributes = $child->attributes;
+        if ($child->nodeName === 'track' && $attributes->getNamedItem('kind') !== null && $attributes->getNamedItem('kind')->value === 'captions') {
+          $passed = true;
+          break;
+        }
+      }
+    }
+  }
+  addToResult(
+    $passed,
+    '<video> elements contain a <track> element with [kind="captions"]',
+    '<video> elements do not contain a <track> element with [kind="captions"]'
+  );
 
   //Uses HTTPS
   addToResult(
@@ -188,9 +261,13 @@
     $attributes = $node->attributes;
     if ($attributes->getNamedItem('target') !== null && $attributes->getNamedItem('target')->value === '_blank') {
       if ($attributes->getNamedItem('rel') !== null) {
-        if (strpos($attributes->getNamedItem('rel'), 'noopener') === false && strpos($attributes->getNamedItem('rel'), 'noreferrer') === false) $passed = false;
+        if (strpos($attributes->getNamedItem('rel'), 'noopener') === false && strpos($attributes->getNamedItem('rel'), 'noreferrer') === false) {
+          $passed = false;
+          break;
+        }
       } else {
         $passed = false;
+        break;
       }
     }
   }
