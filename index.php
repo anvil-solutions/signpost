@@ -3,7 +3,7 @@
   <div class="card">
     <h2>Welcome to Signpost</h2>
     <p>
-      Signpost is a web app for checking basic website performance. Enter an web page url below to start testing.
+      Signpost is a web app for checking basic website performance. Enter a web page url below to start testing.
     </p>
     <form id="form" method="POST" action="./check">
       <input id="input" aria-label="Web Page URL" name="url" type="text" required>
