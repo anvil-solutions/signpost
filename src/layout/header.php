@@ -6,6 +6,7 @@
   <title>Anvil - Signpost</title>
   <link rel="icon" href="./favicon.ico">
   <link rel="stylesheet" type="text/css" href="./css/main.min.css" />
+  <meta name="description" content="Signpost is a web app for checking basic website performance.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>

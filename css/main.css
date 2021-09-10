@@ -112,13 +112,15 @@ input, button, a, a * {
   border: .1px solid var(--hover-color);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
-  animation: fadeIn 1s;
 }
 .card > :first-child {
   margin-top: 0;
 }
 .card > :last-child {
   margin-bottom: 0;
+}
+#result, #error {
+  animation: fadeIn 1s;
 }
 form {
   display: flex;
