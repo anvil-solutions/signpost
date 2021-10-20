@@ -16,7 +16,6 @@
   $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
   curl_close($curl);
   while (substr($file, 0, 4) === 'HTTP') list($headers, $file) = explode("\r\n\r\n", $file, 2);
-  while (strpos($file, '  ') !== false) $file = str_replace('  ', ' ', $file);
 
   $doc = new DOMDocument();
   $doc->loadHTML($file);
