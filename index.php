@@ -15,7 +15,10 @@
     <p>
       Below you can view the results of the performed tests.
     </p>
-    <p>The site has achieved a score of <span id="score"></span>/100.</p>
+    <p>
+      The site has achieved a score of <span id="score"></span>/100.
+    </p>
+    <p>As a grade: <span id="grade"></span></p>
     <details open>
       <summary><h3>Failed Tests <small class="indicator"></small></h3></summary>
       <ul id="failed"></ul>

@@ -154,6 +154,9 @@ summary {
   list-style-type: none;
   cursor: pointer;
 }
+summary::-webkit-details-marker {
+  display: none;
+}
 li {
   padding: 8px 0 8px 32px;
   background: url(../images/link.svg) left center no-repeat;

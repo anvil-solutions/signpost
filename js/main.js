@@ -2,6 +2,7 @@ const formElement = document.getElementById('form');
 const inputElement = document.getElementById('input');
 const resultElement = document.getElementById('result');
 const scoreElement = document.getElementById('score');
+const gradeElement = document.getElementById('grade');
 const failedElement = document.getElementById('failed');
 const passedElement = document.getElementById('passed');
 const errorElement = document.getElementById('error');
@@ -15,6 +16,14 @@ function populateList(list, items) {
   }
 }
 
+function calculateGrade(score) {
+  if (score < 50) return 'F'
+  else if (score < 62.5) return 'D'
+  else if (score < 75) return 'C'
+  else if (score < 87.5) return 'B'
+  else return 'A'
+}
+
 formElement.addEventListener('submit', e => {
   e.preventDefault();
   const formData = new FormData(formElement);
@@ -24,11 +33,13 @@ formElement.addEventListener('submit', e => {
   })
   .then(response => response.json())
   .then(result => {
+    const score = parseInt(result.passed.length / (result.passed.length + result.failed.length) * 100, 10);
     savedValue = inputElement.value;
     inputElement.value = result.url;
     errorElement.style.display = 'none';
     resultElement.style.display = 'block';
-    scoreElement.innerHTML = parseInt(result.passed.length / (result.passed.length + result.failed.length) * 100, 10);
+    scoreElement.innerHTML = score;
+    gradeElement.innerHTML = calculateGrade(score);
     failedElement.innerHTML = '';
     passedElement.innerHTML = '';
     if (result.failed.length > 0) {
